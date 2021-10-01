@@ -1,6 +1,7 @@
 import { chromium, Browser, Page, ElementHandle } from 'playwright';
 import { Info } from './types';
 import { Telegraf } from 'telegraf';
+import schedule from 'node-schedule';
 import getDb from './lowdb.js';
 
 const host = 'https://www.nike.com';
@@ -12,9 +13,10 @@ const channelId = '-1001370962829';
 const bot = new Telegraf(telegramToken);
 
 (async () => {
-  console.log('start!');
-
-  await run();
+  schedule.scheduleJob('0 9 * * *', async function () {
+    console.log('start!');
+    await run();
+  });
 })();
 
 async function getText(item: ElementHandle, selector: string): Promise<string> {
