@@ -1,10 +1,23 @@
 import { chromium, Browser, Page, ElementHandle } from 'playwright';
+import { Info } from './types';
+import getDb from './lowdb.js';
 
 const host = 'https://www.nike.com';
 const listUrl = '/kr/launch/?type=upcoming';
+const db = getDb();
 
 (async () => {
   console.log('start!');
+  console.log(db.data);
+
+  await run();
+})();
+
+async function getText(item: ElementHandle, selector: string): Promise<string> {
+  return await item.$eval(selector, (node: Element) => node.textContent ?? '');
+}
+
+async function run() {
   const browser: Browser = await chromium.launch({
     headless: false,
   });
@@ -26,12 +39,20 @@ const listUrl = '/kr/launch/?type=upcoming';
         'data-active-date',
       )) as string;
       console.log(date);
+      const hasObject = db.data?.infos.find(
+        (el) => el.name === name && el.date === date,
+      );
+      if (!hasObject) {
+        const info: Info = {
+          name,
+          link,
+          date,
+        };
+        db.data?.infos.push(info);
+        db.write();
+      }
     }
   }
 
   await page.close();
-})();
-
-async function getText(item: ElementHandle, selector: string): Promise<string> {
-  return await item.$eval(selector, (node: Element) => node.textContent ?? '');
 }
