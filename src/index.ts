@@ -13,8 +13,9 @@ const channelId = '-1001370962829';
 const bot = new Telegraf(telegramToken);
 
 (async () => {
+  console.log('start!');
   schedule.scheduleJob('0 9 * * *', async function () {
-    console.log('start!');
+    console.log('scheduleJob - start!');
     await run();
   });
 })();
