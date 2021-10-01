@@ -26,7 +26,7 @@ async function getText(item: ElementHandle, selector: string): Promise<string> {
 
 async function run() {
   const browser: Browser = await chromium.launch({
-    headless: false,
+    headless: true,
   });
   const page: Page = await browser.newPage();
   await page.goto(`${host}${listUrl}`);
