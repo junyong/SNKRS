@@ -1,14 +1,18 @@
 import { chromium, Browser, Page, ElementHandle } from 'playwright';
 import { Info } from './types';
+import { Telegraf } from 'telegraf';
 import getDb from './lowdb.js';
 
 const host = 'https://www.nike.com';
 const listUrl = '/kr/launch/?type=upcoming';
 const db = getDb();
 
+const telegramToken = '2021939179:AAGpH2RinLi482TgyNQItTGJs3orgZowCn0';
+const channelId = '-1001370962829';
+const bot = new Telegraf(telegramToken);
+
 (async () => {
   console.log('start!');
-  console.log(db.data);
 
   await run();
 })();
@@ -33,8 +37,9 @@ async function run() {
     if (value.trim().indexOf('THE DRAW') > -1) {
       const name: string = await getText(item, 'h6.headline-3');
       console.log(name);
-      const link: string = (await drawElement?.getAttribute('href')) as string;
-      console.log(`${host}${link}`);
+      const link: string =
+        host + ((await drawElement?.getAttribute('href')) as string);
+      console.log(`${link}`);
       const date: string = (await item.getAttribute(
         'data-active-date',
       )) as string;
@@ -50,6 +55,11 @@ async function run() {
         };
         db.data?.infos.push(info);
         db.write();
+        bot.telegram.sendMessage(
+          channelId,
+          `<b>${name}</b>\n<i>${date}</i>\n<a href="${link}">go!</a>`,
+          { parse_mode: 'HTML' },
+        );
       }
     }
   }
