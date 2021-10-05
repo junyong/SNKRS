@@ -1,15 +1,18 @@
+import dotenv from 'dotenv';
 import { chromium, Browser, Page, ElementHandle } from 'playwright';
 import { Info } from './types';
 import { Telegraf } from 'telegraf';
 import schedule from 'node-schedule';
 import getDb from './lowdb.js';
 
+dotenv.config();
+
 const host = 'https://www.nike.com';
 const listUrl = '/kr/launch/?type=upcoming';
 const db = getDb();
 
-const telegramToken = '2021939179:AAGpH2RinLi482TgyNQItTGJs3orgZowCn0';
-const channelId = '-1001370962829';
+const telegramToken: string = process.env.TELEGRAM_TOKEN ?? '';
+const channelId: string = process.env.TELEGRAM_CHANNEL_ID ?? '';
 const bot = new Telegraf(telegramToken);
 
 (async () => {
