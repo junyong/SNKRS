@@ -17,7 +17,11 @@ const bot = new Telegraf(telegramToken);
 
 (async () => {
   console.log('start!');
-  schedule.scheduleJob('0 9 * * *', async function () {
+  const rule = new schedule.RecurrenceRule();
+  rule.tz = 'Asia/Seoul';
+  rule.hour = 9;
+  rule.minute = 0;
+  schedule.scheduleJob(rule, async function () {
     console.log('scheduleJob - start!');
     await run();
   });
