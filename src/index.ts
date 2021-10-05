@@ -3,6 +3,7 @@ import { chromium, Browser, Page, ElementHandle } from 'playwright';
 import { Info } from './types';
 import { Telegraf } from 'telegraf';
 import schedule from 'node-schedule';
+import dayjs from 'dayjs';
 import getDb from './lowdb.js';
 
 dotenv.config();
@@ -26,6 +27,10 @@ const bot = new Telegraf(telegramToken);
     await run();
   });
 })();
+
+async function telegramSendMessage(message: string) {
+  bot.telegram.sendMessage(channelId, message, { parse_mode: 'HTML' });
+}
 
 async function getText(item: ElementHandle, selector: string): Promise<string> {
   return await item.$eval(selector, (node: Element) => node.textContent ?? '');
@@ -65,11 +70,23 @@ async function run() {
         };
         db.data?.infos.push(info);
         db.write();
-        bot.telegram.sendMessage(
-          channelId,
-          `<b>${name}</b>\n<i>${date}</i>\n<a href="${link}">go!</a>`,
-          { parse_mode: 'HTML' },
+        telegramSendMessage(
+          `<b>${name}</b>\n<i>${date}</i>\n<a href="${link}">detail</a>`,
         );
+
+        let applyDate = dayjs(date);
+        applyDate = applyDate.subtract(5, 'm');
+
+        const rule = new schedule.RecurrenceRule();
+        rule.tz = 'Asia/Seoul';
+        rule.year = applyDate.year();
+        rule.month = applyDate.month();
+        rule.date = applyDate.date();
+        rule.hour = applyDate.hour();
+        rule.minute = applyDate.minute();
+        schedule.scheduleJob(rule, function () {
+          telegramSendMessage(`<b>${name}</b>\ngo!!!!`);
+        });
       }
     }
   }
