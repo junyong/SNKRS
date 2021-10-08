@@ -44,37 +44,40 @@ async function run() {
   await page.goto(`${host}${listUrl}`);
 
   const items: Array<ElementHandle> = await page.$$(
-    'li.launch-list-item.d-md-ib ',
+    'li.launch-list-item.d-md-ib',
   );
   for await (const item of items) {
     const drawElement = await item.$('.ncss-btn-primary-dark');
     const value: string = (await drawElement?.innerText()) as string;
-    if (value.trim().indexOf('THE DRAW') > -1) {
+    if (value.trim().indexOf('THE DRAW 진행예정') > -1) {
       const name: string = await getText(item, 'h6.headline-3');
       console.log(name);
       const link: string =
         host + ((await drawElement?.getAttribute('href')) as string);
       console.log(`${link}`);
-      const date: string = (await item.getAttribute(
+      const activeDate: string = (await item.getAttribute(
         'data-active-date',
       )) as string;
-      console.log(date);
+      const availableDate = dayjs(activeDate)
+        .subtract(1, 'h')
+        .format('YYYY/MM/DD HH:mm');
+      console.log(availableDate);
       const hasObject = db.data?.infos.find(
-        (el) => el.name === name && el.date === date,
+        (el) => el.name === name && el.date === availableDate,
       );
       if (!hasObject) {
         const info: Info = {
           name,
           link,
-          date,
+          date: availableDate,
         };
         db.data?.infos.push(info);
         db.write();
         telegramSendMessage(
-          `<b>${name}</b>\n<i>${date}</i>\n<a href="${link}">detail</a>`,
+          `<b>${name}</b>\n<i>${availableDate}</i>\n<a href="${link}">link</a>`,
         );
 
-        let applyDate = dayjs(date);
+        let applyDate = dayjs(availableDate);
         applyDate = applyDate.subtract(5, 'm');
 
         const rule = new schedule.RecurrenceRule();
@@ -85,7 +88,7 @@ async function run() {
         rule.hour = applyDate.hour();
         rule.minute = applyDate.minute();
         schedule.scheduleJob(rule, function () {
-          telegramSendMessage(`<b>${name}</b>\ngo!!!!`);
+          telegramSendMessage(`go!!!!`);
         });
       }
     }
