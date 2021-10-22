@@ -24,6 +24,7 @@ const bot = new Telegraf(telegramToken);
   rule.minute = 0;
   schedule.scheduleJob(rule, async function () {
     console.log('scheduleJob - start!');
+    telegramSendMessage('start job');
     await run();
   });
 })();
@@ -88,7 +89,7 @@ async function run() {
         rule.hour = applyDate.hour();
         rule.minute = applyDate.minute();
         schedule.scheduleJob(rule, function () {
-          telegramSendMessage(`go!!!!`);
+          telegramSendMessage(`${name} - go!!!!`);
         });
       }
     }
