@@ -95,5 +95,5 @@ async function run() {
     }
   }
 
-  await page.close();
+  await browser.close();
 }
