@@ -24,7 +24,6 @@ const bot = new Telegraf(telegramToken);
   rule.minute = 0;
   schedule.scheduleJob(rule, async function () {
     console.log('scheduleJob - start!');
-    telegramSendMessage('start job');
     await run();
   });
 })();
@@ -79,7 +78,7 @@ async function run() {
         );
 
         let applyDate = dayjs(availableDate);
-        applyDate = applyDate.subtract(5, 'm');
+        applyDate = applyDate.add(5, 'm');
 
         const rule = new schedule.RecurrenceRule();
         rule.tz = 'Asia/Seoul';
